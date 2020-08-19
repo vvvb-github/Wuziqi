@@ -13,10 +13,15 @@ cc.Class({
         identity: 0,
         point: cc.Prefab,
         board: [],
+        gameover: {
+            default: null,
+            type: cc.Node,
+            visible: false
+        }
     },
 
     getPos: function(i, j) {
-        return new cc.Vec2(255 + 25 * i, 125 + 25 * j);
+        return new cc.Vec2(25*i-225, 25*j-225);
     },
 
     inturn: function() {
@@ -34,7 +39,7 @@ cc.Class({
         }
         var fla = this.judgeWin(point.pos);
         if(fla){
-            this.restart();
+            this.gameOver();
         }else{
             this.turn = (this.turn + 1) % 2;
         }
@@ -68,12 +73,28 @@ cc.Class({
         }
 
         this.turn = 0;
+        this.gameover.active = false;
+    },
+
+    gameOver: function() {
+        var info = cc.find('gameover/info', this.node);
+
+        if(this.turn === this.identity){
+            info.getComponent(cc.Label).string = '你赢了！';
+        }else{
+            info.getComponent(cc.Label).string = '你输了！';
+        }
+
+        this.turn = 3;
+        this.gameover.active = true;
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        var scene = cc.director.getScene();
+        this.gameover = cc.find('gameover', this.node);
+
+        var scene = cc.find('board');
 
         for(var i=0;i<19;++i){
             this.board.push([])
