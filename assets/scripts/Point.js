@@ -27,29 +27,37 @@ cc.Class({
         },
         gamer: {
             default: null,
-            type: cc.Node,
             visible: false
         },
         color: {
             default: 'none',
             visible: false
+        },
+        pos: {
+            default: new cc.Vec2(0, 0),
+            visible: false
         }
+    },
+
+    reset: function() {
+        this.color = 'none'
+        this.getComponent(cc.Sprite).spriteFrame = null
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        this.gamer = cc.find('Canvas');
+        this.gamer = cc.find('Canvas').getComponent('Game');
 
         this.node.on('mouseenter', function(event){
-            if(!this.gamer.getComponent('Game').inturn) return;
+            if(!this.gamer.inturn()) return;
             if(this.color != 'none') return;
-            if(this.gamer.getComponent('Game').turn === 0){
+            if(this.gamer.turn === 0){
                 this.getComponent(cc.Sprite).spriteFrame = this.dark
             }else{
                 this.getComponent(cc.Sprite).spriteFrame = this.light
             }
-        }, this);
+        },this);
 
         this.node.on('mouseleave', function(event){
             if(this.color != 'none') return;
@@ -57,14 +65,9 @@ cc.Class({
         },this);
 
         this.node.on('mousedown', function(event){
-            if(!this.gamer.getComponent('Game').inturn) return;
-            if(this.gamer.getComponent('Game').turn === 0){
-                this.getComponent(cc.Sprite).spriteFrame = this.black
-                this.color = 'black'
-            }else{
-                this.getComponent(cc.Sprite).spriteFrame = this.white
-                this.color = 'white'
-            }
+            if(!this.gamer.inturn()) return;
+            if(this.color != 'none') return;
+            this.gamer.put(this);
         },this)
     },
 
