@@ -17,6 +17,23 @@ cc.Class({
             default: null,
             type: cc.Node,
             visible: false
+        },
+        timer: {
+            default: null,
+            type: cc.Node,
+            visible: false
+        },
+        count: {
+            default: 0,
+            visible: false
+        },
+        toggle: {
+            default: false,
+            visible: false
+        },
+        leftTime: {
+            default: 0,
+            visible: false
         }
     },
 
@@ -24,12 +41,28 @@ cc.Class({
         return new cc.Vec2(25*i-225, 25*j-225);
     },
 
+    newTurn: function() {
+        this.toggle = true;
+        this.count = 0;
+        this.timer.getComponent(cc.ProgressBar).progress = 1;
+        this.leftTime = 60;
+        this.timer.getChildByName('count').getComponent(cc.Label).string = 60;
+        this.timer.active = true;
+    },
+
+    turnOver: function() {
+        this.timer.active = false;
+        this.toggle = false;
+    },
+
     inturn: function() {
         // return this.turn === this.identity;
-        return true;
+        return this.turn < 2;
     },
 
     put: function(point) {
+        this.turnOver();
+
         if(this.turn === 0){
             point.getComponent(cc.Sprite).spriteFrame = point.black;
             point.color = 'black';
@@ -39,9 +72,10 @@ cc.Class({
         }
         var fla = this.judgeWin(point.pos);
         if(fla){
-            this.gameOver();
+            this.gameOver(this.turn === this.identity);
         }else{
             this.turn = (this.turn + 1) % 2;
+            this.newTurn();
         }
     },
 
@@ -74,12 +108,13 @@ cc.Class({
 
         this.turn = 0;
         this.gameover.active = false;
+        this.newTurn();
     },
 
-    gameOver: function() {
+    gameOver: function(win) {
         var info = cc.find('gameover/info', this.node);
 
-        if(this.turn === this.identity){
+        if(win){
             info.getComponent(cc.Label).string = '你赢了！';
         }else{
             info.getComponent(cc.Label).string = '你输了！';
@@ -89,10 +124,21 @@ cc.Class({
         this.gameover.active = true;
     },
 
+    lose: function() {
+        this.turnOver();
+        this.gameOver(false);
+    },
+
+    discard: function() {
+        this.turn = (this.turn + 1) % 2;
+        this.newTurn();
+    },
+
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
         this.gameover = cc.find('gameover', this.node);
+        this.timer = cc.find('timer', this.node);
 
         var scene = cc.find('board');
 
@@ -111,8 +157,21 @@ cc.Class({
     },
 
     start () {
-
+        this.newTurn();
     },
 
-    // update (dt) {},
+    update (dt) {
+        if(this.toggle){
+            this.timer.getComponent(cc.ProgressBar).progress -= dt/60;
+
+            this.count += dt;
+            if(this.count >= 1){
+                this.count = 0;
+                this.timer.getChildByName('count').getComponent(cc.Label).string = --this.leftTime;
+                if(this.leftTime <= 0){
+                    this.discard();
+                }
+            }
+        }
+    },
 });
