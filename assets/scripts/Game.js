@@ -34,6 +34,10 @@ cc.Class({
         leftTime: {
             default: 0,
             visible: false
+        },
+        socket: {
+            default: null,
+            visible: false
         }
     },
 
@@ -139,6 +143,7 @@ cc.Class({
     onLoad () {
         this.gameover = cc.find('gameover', this.node);
         this.timer = cc.find('timer', this.node);
+        this.socket = cc.director.getScene().getChildByName('App').getComponent('WebSocket');
 
         var scene = cc.find('board');
 
