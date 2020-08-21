@@ -5,6 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 var config = require('config');
+const { disconnect } = require('process');
 
 cc.Class({
     extends: cc.Component,
@@ -29,13 +30,31 @@ cc.Class({
         this.ws.close();
     },
 
+    inConnect: function() {
+        return this.ws.readyState === 1;
+    },
+
+    send: function(data) {
+        this.ws.send(JSON.stringify(data));
+    },
+
     open: function() {
         console.log('Connect Success!');
     },
 
     message: function(res) {
-        var data = res.data;
+        var data = JSON.parse(res.data);
+        var socket = cc.find('App').getComponent('WebSocket');
         console.log(data);
+
+        switch(data.id) {
+            case 0:
+                socket.disconnect();
+                break;
+            case 1:
+                console.log('Join Success!!!');
+                break;
+        }
     },
 
     close: function() {

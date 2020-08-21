@@ -27,13 +27,16 @@ cc.Class({
     },
 
     newRoom: function() {
+        if(this.search.active) {
+            cancel();
+        }
+
         axios.get(config.httpUrl+':'+config.port+config.path+'/newroom')
             .then(res=>{
                 this.rid = res.data;
 
                 this.socket.connect('/websocket/'+this.rid);
 
-                console.log(this.room);
                 this.room.getChildByName('id').getComponent(cc.Label).string = '房间号：'+this.rid;
                 this.room.active = true;
             }).catch(err=>{
@@ -43,14 +46,56 @@ cc.Class({
 
     cancelRoom: function() {
         this.socket.disconnect();
+        this.room.active = false;
     },
 
-    joinRoom: function() {},
+    joinRoom: function() {
+        if(this.room.active) {
+            cancelRoom();
+        }
+        this.search.active = true;
+    },
+
+    confirm: function() {
+        this.rid = this.search.getChildByName('rid').getComponent(cc.EditBox).string;
+
+        axios.get(config.httpUrl+':'+config.port+config.path+'/joinroom',{
+            params: {rid: this.rid}
+        }).then(res=>{
+            if(res.data){
+                this.search.getChildByName('info').getComponent(cc.Label).string = '等待其他玩家响应...';
+
+                this.socket.connect('/websocket/'+this.rid);
+
+                this.cb = () => {
+                    if(this.socket.inConnect()){
+                        var data = {
+                            id: 1
+                        }
+                        this.socket.send(data);
+                        this.unschedule(this.cb);
+                    }
+                }
+                this.schedule(this.cb, 1);
+            } else {
+                this.search.getChildByName('info').getComponent(cc.Label).string = '房间号不存在！';
+            }
+        }).catch(err=>{
+            console.log(err);
+        })
+    },
+
+    cancel: function() {
+        this.search.active = false;
+        if(this.socket.inConnect()) {
+            this.socket.disconnect();
+        }
+    },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        this.socket = this.getComponent('WebSocket');
+        this.socket = cc.find('App').getComponent('WebSocket');
         this.room = cc.find('Canvas/room');
         this.search = cc.find('Canvas/search');
     },
