@@ -23,12 +23,13 @@ cc.Class({
             default: null,
             visible: false
         },
-        rid: '0000'
+        rid: '0000',
+        canClick: true
     },
 
     newRoom: function() {
-        if(this.search.active) {
-            cancel();
+        if(!this.canClick) {
+            return;
         }
 
         axios.get(config.httpUrl+':'+config.port+config.path+'/newroom')
@@ -39,6 +40,7 @@ cc.Class({
 
                 this.room.getChildByName('id').getComponent(cc.Label).string = '房间号：'+this.rid;
                 this.room.active = true;
+                this.canClick = false;
             }).catch(err=>{
                 console.log(err);
             })
@@ -47,13 +49,15 @@ cc.Class({
     cancelRoom: function() {
         this.socket.disconnect();
         this.room.active = false;
+        this.canClick = true;
     },
 
     joinRoom: function() {
-        if(this.room.active) {
-            cancelRoom();
+        if(!this.canClick) {
+            return;
         }
         this.search.active = true;
+        this.canClick = false;
     },
 
     confirm: function() {
@@ -87,6 +91,7 @@ cc.Class({
 
     cancel: function() {
         this.search.active = false;
+        this.canClick = true;
         if(this.socket.inConnect()) {
             this.socket.disconnect();
         }
@@ -98,6 +103,10 @@ cc.Class({
         this.socket = cc.find('App').getComponent('WebSocket');
         this.room = cc.find('Canvas/room');
         this.search = cc.find('Canvas/search');
+
+        cc.director.preloadScene("game", function () {
+            cc.log('game preloaded');
+        });
     },
 
     start () {

@@ -52,13 +52,44 @@ cc.Class({
                 socket.disconnect();
                 break;
             case 1:
-                console.log('Join Success!!!');
+                cc.director.loadScene("game");
+                socket.cb = () => {
+                    var game = cc.find("Canvas").getComponent('Game')
+                    if(game){
+                        game.identity = data.identity;
+                        socket.unschedule(socket.cb);
+                    }
+                }
+                socket.schedule(socket.cb, 1);
+                break;
+            case 2:
+                if(data.x < 0){
+                    cc.find('Canvas').getComponent('Game').discard();
+                }else{
+                    cc.find('Canvas').getComponent('Game').put(data.x, data.y);
+                }
+                break;
+            case 3:
+                cc.find('Canvas').getComponent('Game').lose(data.identity);
+                break;
+            case 4:
+                cc.find('Canvas').getComponent('Game').restart();
                 break;
         }
     },
 
     close: function() {
         cc.director.loadScene("hall");
+        var socket = cc.find('App').getComponent('WebSocket');
+
+        socket.cb = () => {
+            var backinfo = cc.find('Canvas/backinfo').getComponent('TempNode');
+            if(backinfo){
+                backinfo.setActive(3);
+                socket.unschedule(socket.cb);
+            }
+        }
+        socket.schedule(socket.cb, 1);
     },
 
     error: function() {},

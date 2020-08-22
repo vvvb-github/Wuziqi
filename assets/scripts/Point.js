@@ -67,7 +67,7 @@ cc.Class({
         this.node.on('mousedown', function(event){
             if(!this.gamer.inturn()) return;
             if(this.color != 'none') return;
-            this.gamer.put(this);
+            this.gamer.makeChess(this.pos.x, this.pos.y);
         },this)
     },
 

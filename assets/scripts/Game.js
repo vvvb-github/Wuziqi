@@ -10,7 +10,7 @@ cc.Class({
 
     properties: {
         turn: 0,
-        identity: 0,
+        identity: -1,
         point: cc.Prefab,
         board: [],
         gameover: {
@@ -38,7 +38,8 @@ cc.Class({
         socket: {
             default: null,
             visible: false
-        }
+        },
+        canClick: true
     },
 
     getPos: function(i, j) {
@@ -60,11 +61,21 @@ cc.Class({
     },
 
     inturn: function() {
-        // return this.turn === this.identity;
-        return this.turn < 2;
+        return this.canClick && this.turn === this.identity;
+        // return this.turn < 2;
     },
 
-    put: function(point) {
+    makeChess: function(x, y) {
+        var data = {
+            id: 2,
+            x: x,
+            y: y
+        };
+        this.socket.send(data);
+    },
+
+    put: function(x, y) {
+        var point = this.board[x][y]
         this.turnOver();
 
         if(this.turn === 0){
@@ -103,6 +114,19 @@ cc.Class({
         return false;
     },
 
+    btnRestart: function() {
+        var data = {
+            id: 4
+        };
+        this.socket.send(data);
+        this.gameover.getChildByName('wait').active = true;
+        this.gameover.getChildByName('restart').getComponent(cc.Button).interactable = false;
+    },
+
+    btnBack: function() {
+        this.socket.disconnect();
+    },
+
     restart: function() {
         for(var i=0;i<19;++i){
             for(var j=0;j<19;++j){
@@ -112,6 +136,7 @@ cc.Class({
 
         this.turn = 0;
         this.gameover.active = false;
+        this.canClick = true;
         this.newTurn();
     },
 
@@ -124,13 +149,35 @@ cc.Class({
             info.getComponent(cc.Label).string = '你输了！';
         }
 
-        this.turn = 3;
+        this.gameover.getChildByName('wait').active = false;
+        this.gameover.getChildByName('restart').getComponent(cc.Button).interactable = true;
         this.gameover.active = true;
+        this.canClick = false;
     },
 
-    lose: function() {
+    btnLose: function() {
+        if(!this.canClick){
+            return;
+        }
+
+        var data = {
+            id: 3,
+            identity: this.identity
+        };
+        this.socket.send(data);
+    },
+
+    lose: function(identity) {
         this.turnOver();
-        this.gameOver(false);
+        this.gameOver(identity != this.identity);
+    },
+
+    btnDiscard: function() {
+        if(!this.canClick){
+            return;
+        }
+
+        this.makeChess(-1,-1);
     },
 
     discard: function() {
@@ -174,7 +221,7 @@ cc.Class({
                 this.count = 0;
                 this.timer.getChildByName('count').getComponent(cc.Label).string = --this.leftTime;
                 if(this.leftTime <= 0){
-                    this.discard();
+                    this.btnDiscard();
                 }
             }
         }
