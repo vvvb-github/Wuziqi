@@ -192,7 +192,7 @@ cc.Class({
         this.timer = cc.find('timer', this.node);
         this.socket = cc.director.getScene().getChildByName('App').getComponent('WebSocket');
 
-        var scene = cc.find('board');
+        var scene = cc.find('Canvas/board');
 
         for(var i=0;i<19;++i){
             this.board.push([])

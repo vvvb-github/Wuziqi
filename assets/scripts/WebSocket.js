@@ -5,7 +5,6 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 var config = require('config');
-const { disconnect } = require('process');
 
 cc.Class({
     extends: cc.Component,
