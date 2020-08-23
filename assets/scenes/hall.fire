@@ -134,6 +134,9 @@
     },
     "_enabled": true,
     "ws": null,
+    "audio": {
+      "__uuid__": "47c633df-794e-4e10-965a-7b637fde5920"
+    },
     "_id": "e4g31k+4BKOLFAsfK+Xjg0"
   },
   {

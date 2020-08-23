@@ -13,7 +13,8 @@ cc.Class({
         ws: {
             default: null,
             visible: false
-        }
+        },
+        audio: cc.AudioClip
     },
 
     connect: function(fix) {
@@ -100,7 +101,7 @@ cc.Class({
     },
 
     start () {
-
+        cc.audioEngine.playMusic(this.audio, true);
     },
 
     // update (dt) {},

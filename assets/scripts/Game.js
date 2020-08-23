@@ -39,7 +39,8 @@ cc.Class({
             default: null,
             visible: false
         },
-        canClick: true
+        canClick: true,
+        audio: cc.AudioClip
     },
 
     getPos: function(i, j) {
@@ -85,6 +86,7 @@ cc.Class({
             point.getComponent(cc.Sprite).spriteFrame = point.white;
             point.color = 'white';
         }
+        cc.audioEngine.playEffect(this.audio, false);
         var fla = this.judgeWin(point.pos);
         if(fla){
             this.gameOver(this.turn === this.identity);

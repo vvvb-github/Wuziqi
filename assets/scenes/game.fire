@@ -2764,6 +2764,9 @@
     "leftTime": 0,
     "socket": null,
     "canClick": true,
+    "audio": {
+      "__uuid__": "35310465-8357-4f49-9be8-e88814685c0d"
+    },
     "_id": "3fOp+mUWhNp5jaNkE0hIH4"
   }
 ]
