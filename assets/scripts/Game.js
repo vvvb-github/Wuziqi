@@ -40,7 +40,11 @@ cc.Class({
             visible: false
         },
         canClick: true,
-        audio: cc.AudioClip
+        audio: cc.AudioClip,
+        lastPoint: {
+            default: new cc.Vec2(0, 0),
+            visible: false
+        }
     },
 
     getPos: function(i, j) {
@@ -86,7 +90,11 @@ cc.Class({
             point.getComponent(cc.Sprite).spriteFrame = point.white;
             point.color = 'white';
         }
+        this.board[this.lastPoint.x][this.lastPoint.y].setTip(false);
+        this.lastPoint = point.pos;
+        point.setTip(true);
         cc.audioEngine.playEffect(this.audio, false);
+
         var fla = this.judgeWin(point.pos);
         if(fla){
             this.gameOver(this.turn === this.identity);

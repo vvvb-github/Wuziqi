@@ -92,7 +92,7 @@ cc.Class({
     cancel: function() {
         this.search.active = false;
         this.canClick = true;
-        if(this.socket && this.socket.inConnect()) {
+        if(this.socket.inConnect()) {
             this.socket.disconnect();
         }
     },

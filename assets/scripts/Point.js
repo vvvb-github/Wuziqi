@@ -36,18 +36,26 @@ cc.Class({
         pos: {
             default: new cc.Vec2(0, 0),
             visible: false
-        }
+        },
+        tip: cc.Node
     },
 
     reset: function() {
-        this.color = 'none'
-        this.getComponent(cc.Sprite).spriteFrame = null
+        this.tip.active = false;
+        this.color = 'none';
+        this.getComponent(cc.Sprite).spriteFrame = null;
+    },
+
+    setTip: function(state) {
+        this.tip.active = state;
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
         this.gamer = cc.find('Canvas').getComponent('Game');
+        this.tip = this.node.getChildByName('tip');
+        this.tip.active = false;
 
         this.node.on('mouseenter', function(event){
             if(!this.gamer.inturn()) return;
@@ -64,7 +72,7 @@ cc.Class({
             this.getComponent(cc.Sprite).spriteFrame = null
         },this);
 
-        this.node.on('mousedown', function(event){
+        this.node.on('mouseup', function(event){
             if(!this.gamer.inturn()) return;
             if(this.color != 'none') return;
             this.gamer.makeChess(this.pos.x, this.pos.y);

@@ -31,7 +31,7 @@ cc.Class({
     },
 
     inConnect: function() {
-        return this.ws.readyState === 1;
+        return this.ws && this.ws.readyState === 1;
     },
 
     send: function(data) {
