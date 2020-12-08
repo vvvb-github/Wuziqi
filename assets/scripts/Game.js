@@ -9,6 +9,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        waiting: false,
         turn: 0,
         identity: -1,
         point: cc.Prefab,
@@ -66,7 +67,7 @@ cc.Class({
     },
 
     inturn: function() {
-        return this.canClick && this.turn === this.identity;
+        return this.canClick && this.turn === this.identity && !this.waiting;
         // return this.turn < 2;
     },
 
@@ -77,6 +78,7 @@ cc.Class({
             y: y
         };
         this.socket.send(data);
+        this.waiting = true;
     },
 
     put: function(x, y) {
@@ -100,6 +102,7 @@ cc.Class({
             this.gameOver(this.turn === this.identity);
         }else{
             this.turn = (this.turn + 1) % 2;
+            this.waiting = false;
             this.newTurn();
         }
     },
@@ -183,7 +186,7 @@ cc.Class({
     },
 
     btnDiscard: function() {
-        if(!this.canClick){
+        if(!this.inturn()){
             return;
         }
 
@@ -191,6 +194,7 @@ cc.Class({
     },
 
     discard: function() {
+        this.waiting = false;
         this.turn = (this.turn + 1) % 2;
         this.newTurn();
     },
